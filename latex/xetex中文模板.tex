@@ -1,0 +1,251 @@
+
+%文件的类型
+
+\documentclass[12pt,a4paper]{ctexrep} 
+\usepackage{titlesec}
+
+%设置页边距
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1in]{geometry}
+
+%设置行距
+%在使用ctex时注释掉
+%\renewcommand{\baselinestretch}{1.62}
+
+
+%设置标题格式
+\titleformat{\section}{\Large\AdobeHei}{\thesection}{1em}{}
+
+\usepackage{fontspec}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+
+
+\newfontfamily\AdobeHei{Adobe Heiti Std}
+\newfontfamily\AdobeSong{Adobe Song Std}
+\newfontfamily\AdobeKai{Adobe Kaiti Std}
+
+
+\setmainfont[BoldFont=Adobe Heiti Std]{Adobe Song Std}
+\setsansfont[BoldFont=Adobe Heiti Std]{AdobeKaitiStd-Regular}
+\setmonofont{Times New Roman}
+
+
+%重定义摘要的名称
+%\renewcommand{\abstractname}{摘要}
+%\renewcommand{\chaptername}{章}
+%\renewcommand{\contentsname}{mulu}
+
+% 设置段落内缩
+\parindent=2em
+\makeatletter
+\let\@afterindentfalse\@afterindenttrue
+\@afterindenttrue
+\makeatother
+\setlength{\parindent}{2em}%中文缩进两个汉字位
+
+% ToC:
+\usepackage{titletoc}
+
+%用来处理ctex中目录显示中的重叠问题
+%实际上是调整了目录的相关设置
+%\dottedcontents{chapter}[3.4em]{\bf}{3em}{5pt}
+\usepackage{tocloft}% http://ctan.org/pkg/tocloft
+\setlength{\cftchapnumwidth}{4em}
+\setlength{\cftsubsecnumwidth}{4em}% Set length of number width in ToC for \subsection
+
+%关于在Adobe中侧边超链接目录的设置
+\newcommand\frontmatterchaptoc{%
+\titlecontents{chapter}
+  [1.5em]{\addvspace{\baselineskip}}
+  {\contentslabel{1.5em}\MakeUppercase}
+  {\hspace*{-1.5em}}% \MakeUppercase removed
+  {\titlerule*[1pc]{.}\contentspage}
+}
+
+\usepackage[bookmarks=true,colorlinks,linkcolor=black]{hyperref}
+\hypersetup{
+  unicode,  
+   %linktocpage,
+}
+%\usepackage{bookmark}
+
+\begin{document}
+
+\title{数据结构第五次上机作业}
+
+\date{\today}
+
+\maketitle
+\tableofcontents
+
+
+\begin{abstract}
+
+一个精简版的c语言语法分析器。可以完成90\%的C语言的语法分析。
+
+\end{abstract}
+\chapter{总体介绍}
+\section{主要功能}
+从input.txt中读入需要解释的代码。解释器将会生成parser\_st.dot.pdf这个文件。文件中包含了代码所构成的语法树。\par
+同时生成的文件debug.txt中包含了代码的调试信息。由于时间紧迫，没有能将出错信息精简,并且输出到标准输出流中。
+目前的调试信息依然十分冗长，需要经过处理才能阅读。\\
+ 可以识别大多数的C语言语法。不能读入字符串，不能使用typedef语句，没有宏命令。数字只有一般的十进制表示法，不能加前缀或者后缀。\\
+\section{编程环境和工具}
+下面列出了在编写代码时使用的相关环境。
+\paragraph {操作系统:}
+CentOS 6.4 final
+\paragraph{编译器:}
+gcc version 4.4.7 20120313 (Red Hat 4.4.7-3) (GCC)
+\paragraph{文本编辑器:}
+VIM - Vi IMproved 7.2 (2008 Aug 9, compiled Apr  5 2012 10:17:30)
+\paragraph{pdf生成工具}
+dot - graphviz version 2.26.0 (20091210.2329)
+\paragraph{pdf查看工具}
+Google Chrome 26.0.1410.63
+\paragraph{版本管理工具}
+git version 1.7.1
+\section{简单的示例}
+对于一个文件:
+
+\par 将生成下面的图片:
+\begin{figure}[h]
+
+\caption{样例输出}
+\label{样例输出1}
+\end{figure}
+\par 以及下面的括号表达式：
+
+\chapter{编写过程}
+\section{早期版本}
+我第一次写了一个简单的词法读入代码。可以完成基本的符号，关键字等读入。C语言实现。但是由于C语言本身的能力有限，所以不能很好的完成指定的任务。
+\section{中期版本}
+将早期版本的代码使用c++语法封装，作为词法分析部分。
+采用了部分LR(1)和LL(1)相结合的方法来读入语法。
+\subsection{编写风格的变化}
+\subsubsection{编译开关}
+	大量使用编译开关来帮助调试，控制输出信息。
+
+\subsubsection{多个文件}
+	由于代码量的急剧上升，将大段的代码放到了多个文件中，对于每一个文件有相应的测试代码。方便后期追踪调试。
+\subsubsection{c++语言实现}
+	早期版本是使用C语言实现，这个版本换成c++，大量使用了模板等高级特性。
+\subsection{LR语法}
+考虑到LL(1)代码的局限性，将一部分语法读入使用LR来实现。
+在纸上写一个LR分析过程是非常简单的。但是要变成代码，还有很长的路要走。
+下面展示两个代码片段。第一个是归约的部分代码，第二个是LR的进行代码。
+
+
+\subsection{LL语法}
+递归下降来处理一般的代码。比如循环语句和一般的括号匹配。下面是一段示例代码。
+
+\subsection{缺点和不足}
+\paragraph{接口过多}
+我在每一层都添加了过多的信息，导致整个代码有三分之一的代码在处理层与层之间的关系。这浪费了我自己大量的工作编写。
+而且调试起来非常冗杂。我不应该学习编译原理书后面的java代码，因为java和c++的区别确实很大，实现方法也会有很大的区别。
+\paragraph{调试信息编写不合理}
+初期没有意识到会有大量的调试代码，所以调试信息输出得很随意。但是到了编写的后期，发现需要大量的调试信息，但是修改起来非常不方便。而且所有的调试信息没能得到很好的管理。
+\chapter{代码介绍}
+\section{总体架构}
+分析分成了三个大块。预处理，词法分析，和语法分析。
+\begin{table}[h]
+\caption{代码文件表}
+
+\centering
+\begin{tabular}[h]{|c|c|}
+\hline
+文件名 & 功能 \\
+core.cpp	&  主要的类定义 \\
+number.cpp	& 处理数值的定义\\
+error.cpp	& 异常信息的处理 \\
+pre\_read.cpp & 预处理的定义 \\
+pre\_deal.cpp & 预处理 \\
+grammar.cpp & 语法和词法的定义 \\
+token.cpp	& 词法的定义 \\
+parser.cpp & 定义语法树的结构 \\
+parser\_build.cpp & 进行语法分析 \\
+\hline
+
+\end{tabular}
+\end{table}
+\section{处理流程}
+\subsection{预处理}
+由预处理来读入，将整个文本读入内存之中。去除不能识别的字符，比如“￥”等。将不能识别的字符变成空格进行读入。同时将文中的注释清除掉。记录每一个字符的行号和位置。将整个文本变成一个个字符的包，传递给词法分析器。
+\subsection{词法分析}
+从预处理中读入处理过的字符信息。识别出其中的关键字和符号。将数字转换成数值类型。忽略空格和换行。
+\subsection{语法分析}
+按照附录二中的语法定义去实现EBNF语法。这个语法定义是陈伦荣同学提供的，我们小组分了两条线，陈伦荣使用antlr生成代码，我则是自己动手实现。\par
+将关键字和符号比成语法规则所定义的语法树。由于语法定义中包含了大量的无用的非终结符号，以及无法递归实现语义的语法，所以我没有生成AST树。而是更加单纯的去实现一个语法树。将AST树的生成放到语义分析的部分去生成。\par
+\section{元语言设计}
+在编写过程中，我大量使用了由宏实现的元语言设计。极端地减少了代码长度，大大增加了代码的可读性和和维护性。
+对于下面的一个生成语法树的函数，如果是普通实现的话，描述如下：
+
+但是使用了元语言设计方法之后，代码如下：
+
+可以发现，上面的代码甚至连一点程序实现都没有，看起来非常清晰。这让代码的逻辑和控制部分分离，减少了出错的可能型，也方便了自己的调试及控制。
+\section{运行方法}
+
+输入的代码放入input.txt中。
+编译运行parser\_build.cpp即可。
+编译生成的树会以dot文件的形式输出。这个文件需要使用graphviz工具编译生成图片或者pdf文档。
+
+\chapter{相关说明}
+\section{输入输出信息}
+对于一个输入文件，代码会有以下几个输出。
+
+\subsection{预处理信息}
+
+\subsection{词法信息}
+
+\subsection{语法树信息}
+
+\section{存在的问题}
+在整体的编写过程中，没能做到将每一个部分分割开来。但是考虑到如果多次输出输入的话，每次读入都需要解释上一次的输出信息。相当与写了一个语法分析器。这其实是一个鸡生蛋蛋生鸡的问题，所以最终没有将输入输出分割开来。但是这导致的代码的独立性不够好。\par
+在前两个版本的代码中，在每次的中间过程使用了大量的接口，导致的代码效率及其低下和实现工作量巨大。第三个版本的代码虽然和第二部版本的代码的总量相近，但是实现语法功能确强大了十多倍。第三个版本的代码依然有许多地方可以优化。比如大量使用的字符串的匹配来减少判断语句的工作量。这实际上会给整个代码运行时间乘上10左右的常数。如果有时间的话，可以考虑使用自动机来大大提高这个部分的效率。\par
+语法功能过于强大，实现了90\%左右的C语言文法。导致后期的语义工作量更加巨大。没有办法在规定时间内完成任务。\par
+\section{总结}
+这次的解释器大作业，我总共写了大约5000行的有效代码。其中最终版本大约两千行。总的来说，代码量很大，思维的难度也很高。有许许多多的地方可以不断地挑战自己。不断地尝试更好的实现方法，更加高效的编写方式。很多时候书上的代码并不能够给出很好的解决自己的问题。将书上的内容实现，和将书本中的内容弄懂完全是两回事。实现中会遇到大量的语言及操作系统相关的内容。对于大量的维护和调试自己也是第一次。我使用了编译开关来辅助调试。使用了git来进行版本管理。对于我以后编写大型程序打下了基础。\par
+工作量巨大可能和我选用的编程语言相关。最早的版本是c语言。由于c语言实在是过于简陋，实现非常痛苦。到后来改用C++语言，有效地减少了自己的工作量（至少少了两倍)。但是如果我一开始的时候就能使用secheme等高级语言的话，或许我能够节省大部分的时间。工欲善其事，必先利其器。希望自己以后可以做得更好。\par
+
+
+\chapter{附录一 其他代码}
+\section{早期代码}
+
+\chapter{附录二 最终代码}
+
+\section{语法定义}
+这是一个使用EBNF语法描述的简化版C语言文法。没有typedef语法。只有基本的十进制数字。不支持字符输入。
+
+
+\section{头文件}
+
+core申明了所有的类，定义一些常量。定义了文件打开和关闭的函数。\par
+symbols定义了我将会使用的一些字符常量。不过由于代码并没有完工，许多内容只是定义了，实际上没有使用。
+注意symbols[]和keywords[]两个数组中的顺序非常重要。我是顺序检测各个关键字，如果检测到了就会进行读入。
+举个例子，要读入一个符号"<<"，如果symbols中，"<"在"<<"之前，我会读入两个"<",从而无法读取到位移操作符。
+
+
+
+
+\section{输出}
+两个文件error和op，表示了出错信息和输出信息。
+
+
+\section{数字}
+处理数字的计算，数字类型的转换等。
+
+\section{预处理}
+pre\_read定义了一个CharString类，用来处理输入的程序。将输入文件变成一个字符流。\par
+pre\_deal对输入文件进行预处理。去除不能识别的字符，去除注释内容。
+
+
+\section{语法}
+\subsection{数据结构定义}
+Grammar定义了语法树的结构。用来表示语法中的一个节点。是Token类和Parser类的父类。
+
+\subsection{词法}
+Token将读入的字符流变成了token，读入了数字，标识符和关键字。
+
+\subsection{语法}
+Parser定义了语法树的结构。parser\_build.cpp是语法树的构建代码。
+\end{document}
